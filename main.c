@@ -4,10 +4,9 @@
 #include <ctype.h>
 #define Max_size 120
 
-
 /*****Menu*****/
 
-        void menu(){
+void menu(){
                     puts("**********Bienvenue votre plateforme E-Bank**********\n");
                     puts("Nos services : \n ");
                     puts( "             1: Creer un nouveau compte\n");
@@ -24,12 +23,9 @@
 
 /*****Structures*****/
 
-//Usage de listes chainees
-
 typedef struct{
 int mois,jour,annee;
 }date;
-
 
 typedef struct depots {
     date date_depot;
@@ -41,7 +37,6 @@ typedef struct retraits {
     double montant_retrait;
 } retraits;
 
-//
 typedef struct{
 char nom_facture[120];
 double montant;
@@ -63,8 +58,6 @@ int nb_factures;
 
 /*****Fin structures *****/
 
-//Fonctions
-
 /*****Nouveau compte : partie 1*****/
 
 int Existe(unsigned long numero_compte,char *nomfichier){
@@ -72,28 +65,28 @@ FILE *f=fopen(nomfichier,"rb");
 personne p;
  int m=fread(&p,sizeof(personne),1,f);
                 while( m>0){
-                        if(p.numero_compte==numero_compte)
-                          return 1;
+                        if(p.numero_compte==numero_compte){
+                                                              fclose(f);
+                                                              return 1;
+                                                            }
                     m=fread(&p,sizeof(personne),1,f);
                 }
                 fclose(f);
                 return 0;
-
 }
 
-
- personne RechercherPersonne(unsigned long numero_compte){
-
+personne RechercherPersonne(unsigned long numero_compte){
 FILE *f=fopen("account.bin","rb");
     personne p;
  int m=fread(&p,sizeof(personne),1,f);
                 while( m>0){
-                        if(p.numero_compte==numero_compte)
-                           return p;
+                        if(p.numero_compte==numero_compte){
+                                                             fclose(f);
+                                                             return p;
+                                                            }
                     m=fread(&p,sizeof(personne),1,f);
                 }
                 fclose(f);
-
  }
 
 void new_account(void){
@@ -125,21 +118,16 @@ scanf("%s",&p.code);
     n=Existe(p.numero_compte,"account.bin");
     scanf("%lu",&p.numero_compte);
  }
-
 //Transactions
-
  p.nb_depots=p.nb_retraits=0;p.nb_factures=0;
  p.solde=0;
-
 //Ajout dans la base de donnée
-
 FILE *f = fopen("account.bin","ab+");
 fwrite(&p,sizeof(personne),1,f);
 fclose(f);
 puts("\n\nLa souscription a ete effectuee, merci pour la confiance!");
 }
 /*****Fin New account *****/
-
 
 /*****Infos d'un compte et modification : partie 2*****/
 
@@ -153,12 +141,7 @@ puts("          6: Modifier la date de naissance \n");
 puts("          0: Quitter \n");
                         }
 
-int verifcode(personne *p, char* code){
-return p->code==code;
-}
-
 void Infos_compte(unsigned long numero_compte,char* nomfichier,int n){
-
         FILE *f=fopen(nomfichier,"rb+");
         unsigned long num;
         personne p;
@@ -178,8 +161,7 @@ void Infos_compte(unsigned long numero_compte,char* nomfichier,int n){
             printf("Solde disponible : %lf",p.solde);
 
         //Modification des parametres du compte
-        if(n!=2){
-
+if(n!=2){
                 int test;//Permet d'ameliorer l'experience utilisateur
 
                 printf("\n\nVoulez-vous modifier un parametre du compte ? Tapez 1 si oui ou toute autre numero sinon : ");
@@ -262,12 +244,9 @@ void Infos_compte(unsigned long numero_compte,char* nomfichier,int n){
                                                 printf("\n\nModifie avec succes !");
                                                 break;
                                                 }
-                                        case 0: break;
+                                    case 0: break;
                     }
-
                     }
-
-
         }
         }
         fclose(f);
@@ -275,7 +254,6 @@ void Infos_compte(unsigned long numero_compte,char* nomfichier,int n){
 /*****Fin partie 2*****/
 
 /*****Partie 3: Afficher et gerer les transactions*****/
-
 
 void menu_transaction(void){
 puts("----------Bienvenue sur le service des transactions----------\n\n");
@@ -287,10 +265,8 @@ puts("          0: Quitter \n");
 }
 
 //Afficher les depots
-
 void afficherListedepots(depots liste[Max_size],personne *p)
 {
-
 if (p->nb_depots!=0){
 int i=1;
 while(i<=p->nb_depots)
@@ -380,12 +356,10 @@ void faire_transaction(double montant, unsigned long numero_compte,int n){
                     if(n==4){   ExecuterRetrait(&p,montant);
                                 fseek(f,-sizeof(personne),SEEK_CUR);
                                 fwrite(&p,sizeof(personne),1,f);fclose(f);}
-
                     }
 
- }else{
-         puts("Erreur d'ouverture du fichier\n");
-            }
+ }else
+    puts("\nErreur d'ouverture du fichier\n");
 }
 
 void programme_principale_3(void){
@@ -489,23 +463,23 @@ FILE *temp,*f,*corb=fopen("corbeille.bin","ab+");
 (f =fopen(nomfichier,"rb"))!= NULL){
 m = fread(&p,sizeof(personne),1,f);
 while(m>0){
-if(p.numero_compte!=num){
+if(p.numero_compte!=num)
 fwrite(&p,sizeof(personne),1,temp);
-}
 else
     fwrite(&p,sizeof(personne),1,corb);
-
 m=fread(&p,sizeof(personne),1,f);
 }
- }
- else
-puts("erreur en ouvrant les fichier \n");
 fclose(temp);
 fclose(f);
 fclose(corb);
 remove("account.bin");
 rename("temp.bin","account.bin");
 return 0;
+ }
+ else{
+puts("\nErreur en ouvrant les fichier \n");
+return 0;
+ }
 }
 
 //Retrouver un compte
@@ -522,14 +496,16 @@ if(p.numero_compte!=num)
 fwrite(&p,sizeof(personne),1,temp);
 m=fread(&p,sizeof(personne),1,f);
 }
- }
- else
-puts("erreur en ouvrant les fichier \n");
 fclose(temp);
 fclose(f);
 remove("corbeille.bin");
 rename("temp.bin","corbeille.bin");
 return 0;
+}
+ else{
+        puts("\nErreur en ouvrant les fichiers ! \n");
+        return 0;
+    }
 }
 
 int RetrouverCompte(unsigned long num){
@@ -546,51 +522,58 @@ if(f!=NULL){
             return 0;
         FILE *fich=fopen("account.bin","ab+");
         fwrite(&p,sizeof(personne),1,fich);
-        supprimerPersonne_v2(num,"corbeille.bin");
         fclose(fich);
+         fclose(f);
+        supprimerPersonne_v2(num,"corbeille.bin");
         puts("\nCompte restaure avec succes ! ");
-        fclose(f);
         return 0;}
 else{
-    puts("Ce compte ne peut pas etre restaure ");
+    puts("\nCe compte ne peut pas etre restaure !");
+    return 0;
+    }
 }
-}}
+puts("\nErreur d'ouverture de fichier !\n");
+return 0;
+}
 
 /*****Programme principale*****/
 
 int main()
 {
-
 /*****Affichage du menu*****/
 
-int choix ;
 int test=0;//Permet d'ameliorer l'experience utilisateur
-
+int choix ;
+int fin=0;
 do{
-        if(!test){
-             menu();
-             puts(" \n\n----------E-Bank,l'excellence a votre service---------- \n\n\n");
-            test=1;
-            }
 
-        else{
-            menu();
-            puts("SVP veuillez entrer un choix valide !\n\n");
-            puts(" ----------E-Bank,l'excellence a votre service---------- \n\n\n");
-            }
-        scanf("%d",&choix);
+if(!test){
+        menu();
+        puts(" \n\n----------E-Bank,l'excellence a votre service---------- \n\n\n");
+        test=1;
+        }
+else{
+    menu();
+    puts("SVP veuillez entrer un choix valide !\n\n");
+    puts(" ----------E-Bank,l'excellence a votre service---------- \n\n\n");
+    }
+    scanf("%d",&choix);
 
-}while( choix<0||choix>8 );
+    if(choix==0){
+    printf("\nMerci pour la visite ! Au revoir et a bientot sur nos services !\n\n");
+    puts("-------------------------------E-Bank,l'excellence a votre service--------------------------------\n\n\n");
+    fin=1;
+     }
 
+}while((choix<0||choix>8) && (fin!=1));
+//Traitement des données
 
-
-/**********Programme de gestion du menu**********/
 
  switch(choix){
                 case 1 :{
                           new_account();
-                          puts(" ----------E-Bank,l'excellence a votre service---------- \n\n\n");
-                          break;
+                          puts(" \n\n----------E-Bank,l'excellence a votre service---------- \n\n\n");
+
                         }
 
                 case 2 :{
@@ -666,7 +649,7 @@ do{
                         }
 
                 case 6 :{
-                        FILE *f = fopen("account.bin","rb");
+                          FILE *f = fopen("account.bin","rb");
                             personne p;
                            int m= fread(&p,sizeof(personne),1,f);
                            int i=1;
@@ -683,8 +666,8 @@ do{
                                     i++;
                                     m=fread(&p,sizeof(personne),1,f);
                                     }
-                            fclose(f);
-                            puts(" ----------E-Bank,l'excellence a votre service---------- \n\n\n");
+                        fclose(f);
+                        puts(" ----------E-Bank,l'excellence a votre service---------- \n\n\n");
                          break;
                         }
 
@@ -724,18 +707,8 @@ do{
                      puts(" ----------E-Bank,l'excellence a votre service---------- \n\n\n");
                     break;
                     }
-            case 0 : {
-                    puts(" ----------E-Bank,l'excellence a votre service---------- \n\n\n");
-                    break;
-              }
-
-
-
                 }
-
-
 
 puts("\n\n");
 return 0;
 }
-/*****Fin programme principale *****/

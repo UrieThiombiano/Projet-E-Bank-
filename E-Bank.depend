@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1703108996 source:c:\users\hp\onedrive\documents\cours de l'ensi\1 ere année\1 er semestre\langage c\e-bank\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
